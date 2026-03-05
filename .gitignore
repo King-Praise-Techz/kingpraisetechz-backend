@@ -1,0 +1,38 @@
+# ─── Environment ────────────────────────────────────────────────
+.env
+.env.local
+.env.production
+.env.*.local
+
+# ─── Node ───────────────────────────────────────────────────────
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ─── Build / Runtime ────────────────────────────────────────────
+dist/
+build/
+*.log
+
+# ─── OS Files ───────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ─── Editor ─────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ─── Upload temp ────────────────────────────────────────────────
+uploads/
+tmp/
+
+.env.*
+logs/
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
