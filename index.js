@@ -27,24 +27,21 @@ const app = express();
 // ============================================================
 // 🔐 SECURITY MIDDLEWARE
 // ============================================================
-
-// Helmet (secure headers)
 app.use(
   helmet({
     crossOriginResourcePolicy: false, // important for API usage
   })
 );
 
-// ------------------------------------------------------------
-// 🔥 PRODUCTION-SAFE CORS CONFIGURATION
-// ------------------------------------------------------------
+// ============================================================
+// 🔥 CORS CONFIGURATION
+// ============================================================
 const allowedOrigins = [
   "http://localhost:3000",
   "http://localhost:3001",
-  process.env.FRONTEND_URL, // e.g. https://your-frontend.vercel.app
+  process.env.FRONTEND_URL,
 ].filter(Boolean);
 
-// Reliable CORS middleware
 app.use((req, res, next) => {
   const origin = req.headers.origin;
   if (!origin || allowedOrigins.includes(origin)) {
@@ -59,13 +56,10 @@ app.use((req, res, next) => {
     );
     res.setHeader("Access-Control-Allow-Credentials", "true");
   } else {
-    // Optional: log unauthorized origin attempt
     console.warn(`Blocked CORS request from origin: ${origin}`);
   }
 
-  if (req.method === "OPTIONS") {
-    return res.sendStatus(204); // Preflight handled
-  }
+  if (req.method === "OPTIONS") return res.sendStatus(204);
 
   next();
 });
@@ -123,12 +117,21 @@ app.use("/api/tasks", taskRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 
 // ============================================================
-// ❤️ HEALTH CHECK
+// ❤️ ROOT & HEALTH CHECK
 // ============================================================
+app.get("/", (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "King Praise Techz Backend is running 🚀",
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || "development",
+  });
+});
+
 app.get("/api/health", (req, res) => {
   res.status(200).json({
     success: true,
-    message: "Server is running",
+    message: "Server is healthy",
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || "development",
   });
@@ -150,7 +153,7 @@ app.use((req, res) => {
 app.use(errorHandler);
 
 // ============================================================
-// 🗄 DATABASE CONNECTION
+// 🗄 DATABASE CONNECTION & ADMIN SEEDING
 // ============================================================
 const connectDB = async () => {
   try {
@@ -162,7 +165,14 @@ const connectDB = async () => {
 
     console.log("✅ MongoDB connected successfully");
 
-    await seedAdmin();
+    // ✅ Fixed admin seed: provide firstName & lastName
+    await seedAdmin({
+      firstName: "Admin",
+      lastName: "User",
+      email: process.env.ADMIN_EMAIL || "chibuksai@gmail.com",
+      password: process.env.ADMIN_PASSWORD || "Admin@2",
+    });
+
     startAdminExpiryJob();
   } catch (error) {
     console.error("❌ MongoDB connection failed:", error.message);
